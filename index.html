@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discussion Room Registration System</title>
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
+    
+    /* Tab Buttons */
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+    .tab-btn { flex: 1; padding: 12px; background-color: #e0e6ed; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+    .tab-btn.active { background-color: #3498db; color: white; }
+    
+    /* Card Styles */
+    .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 25px; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .full-width { grid-column: span 2; }
+    
+    label { display: block; font-weight: 600; margin-bottom: 5px; color: #4a5568; font-size: 14px; }
+    input, select { width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 15px; }
+    
+    .hidden { display: none; }
+
+    .submit-btn { width: 100%; padding: 12px; background-color: #2ecc71; color: white; border: none; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.3s; }
+    .submit-btn:hover { background-color: #27ae60; }
+    .submit-btn:disabled { background-color: #bdc3c7; cursor: not-allowed; }
+    .checkout-btn-main { background-color: #e67e22; }
+    .checkout-btn-main:hover { background-color: #d35400; }
+
+    /* Table Styles */
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; background: white; font-size: 14px; }
+    th, td { border: 1px solid #e2e8f0; padding: 10px; text-align: left; }
+    th { background-color: #edf2f7; color: #2d3748; }
+    .status-using { color: #e67e22; font-weight: bold; }
+    .status-finished { color: #27ae60; font-weight: bold; }
+
+    .action-btn { padding: 5px 10px; background-color: #e67e22; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; }
+    .action-btn:hover { background-color: #d35400; }
+    .loading-text { text-align: center; color: #7f8c8d; padding: 10px; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🏫 Discussion Room Registration</h1>
+
+  <!-- Navigation Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('checkin')">▶️ Check-In (Start)</button>
+    <button class="tab-btn" onclick="switchTab('checkout')">◀️ Check-Out (Leave)</button>
+  </div>
+
+  <!-- 1. Check-In Form -->
+  <div id="checkin-tab" class="card tab-content active">
+    <h2>Check-In Form</h2>
+    <form id="checkin-form">
+      <div class="form-grid">
+        <div>
+          <label>Select Room *</label>
+          <select id="room" required>
+            <option value="">-- Select Room --</option>
+            <option value="Room A">Room A</option>
+            <option value="Room B">Room B</option>
+            <option value="Room C">Room C</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Time Slot *</label>
+          <select id="session" required>
+            <option value="Lunch Time">Lunch Time</option>
+            <option value="After School">After School</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Date *</label>
+          <input type="date" id="date" required>
+        </div>
+
+        <div>
+          <label>Start Time *</label>
+          <input type="time" id="startTime" required>
+        </div>
+
+        <!-- Class Selection -->
+        <div>
+          <label>Class Level & House *</label>
+          <div style="display: flex; gap: 5px;">
+            <select id="classForm" style="width: 40%;" required>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+            </select>
+            <select id="classHouse" style="width: 60%;" required>
+              <option value="Lv">Love (Lv)</option>
+              <option value="Hp">Hope (Hp)</option>
+              <option value="Ft">Faith (Ft)</option>
+              <option value="Hn">Honesty (Hn)</option>
+              <option value="Pr">Perseverance (Pr)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label>Class No. *</label>
+          <input type="number" id="studentNo" placeholder="e.g. 12" min="1" max="50" required>
+        </div>
+
+        <div>
+          <label>Student Name *</label>
+          <input type="text" id="studentName" placeholder="e.g. Alex Wong" required>
+        </div>
+
+        <div>
+          <label>Total Number of Users (Min. 2) *</label>
+          <input type="number" id="peopleCount" min="2" value="2" required>
+        </div>
+
+        <div>
+          <label>Teacher Accompanied / Present? *</label>
+          <select id="hasTeacher" onchange="toggleTeacherInput()" required>
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </div>
+
+        <div id="teacherNameBox" class="hidden">
+          <label>Teacher Initial(s) *</label>
+          <input type="text" id="teacherName" placeholder="e.g. MHL / YWY">
+        </div>
+      </div>
+
+      <button type="submit" id="checkin-btn" class="submit-btn">Submit & Start Usage</button>
+    </form>
+  </div>
+
+  <!-- 2. Check-Out Form -->
+  <div id="checkout-tab" class="card tab-content">
+    <h2>Check-Out Form</h2>
+    <p>Select the room you are currently using to complete check-out:</p>
+    <div class="form-grid">
+      <div class="full-width">
+        <label>Select Room to Check-Out *</label>
+        <select id="checkoutRoom">
+          <option value="">-- Select Active Room --</option>
+        </select>
+      </div>
+      <div>
+        <label>End Time *</label>
+        <input type="time" id="endTime">
+      </div>
+    </div>
+    <button type="button" id="checkout-btn" class="submit-btn checkout-btn-main" onclick="submitCheckout()">Confirm Check-Out</button>
+  </div>
+
+  <!-- 3. Usage Records Table -->
+  <div class="card">
+    <h2>📋 Usage Records</h2>
+    <div style="overflow-x:auto;">
+      <table id="recordsTable">
+        <thead>
+          <tr>
+            <th>Room</th>
+            <th>Slot</th>
+            <th>Class & Student</th>
+            <th>Users</th>
+            <th>Teacher Initial</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="9" class="loading-text">Loading records from Google Sheets...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+  // 你的專屬 Google Apps Script URL
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxOoHmfVZcikYesssNa4vW8bv_FqEB8CAxe4nQ2mfqJUbgF7rPyz7Y3rn77ZbYlZ3Sl/exec";
+
+  let records = [];
+
+  // Default Date and Time Initialization & Fetch Data
+  document.addEventListener("DOMContentLoaded", () => {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('date').value = today;
+    
+    const now = new Date();
+    const currentTime = now.toTimeString().substring(0,5);
+    document.getElementById('startTime').value = currentTime;
+    document.getElementById('endTime').value = currentTime;
+
+    fetchRecords();
+  });
+
+  // 從 Google Sheets 載入紀錄
+  function fetchRecords() {
+    fetch(SCRIPT_URL)
+      .then(res => res.json())
+      .then(data => {
+        records = data;
+        renderTable();
+      })
+      .catch(err => {
+        console.error("Error fetching data: ", err);
+        document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" style="text-align:center; color:red;">Failed to load records. Please try refreshing.</td></tr>';
+      });
+  }
+
+  // Switch Tabs
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+    
+    if(tab === 'checkin') {
+      document.querySelectorAll('.tab-btn')[0].classList.add('active');
+      document.getElementById('checkin-tab').classList.add('active');
+    } else {
+      document.querySelectorAll('.tab-btn')[1].classList.add('active');
+      document.getElementById('checkout-tab').classList.add('active');
+      updateCheckoutDropdown();
+    }
+  }
+
+  // Toggle Teacher Input Field
+  function toggleTeacherInput() {
+    const hasTeacher = document.getElementById('hasTeacher').value;
+    const teacherBox = document.getElementById('teacherNameBox');
+    if (hasTeacher === 'Yes') {
+      teacherBox.classList.remove('hidden');
+      document.getElementById('teacherName').setAttribute('required', 'required');
+    } else {
+      teacherBox.classList.add('hidden');
+      document.getElementById('teacherName').removeAttribute('required');
+      document.getElementById('teacherName').value = '';
+    }
+  }
+
+  // Submit Check-In
+  document.getElementById('checkin-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const count = parseInt(document.getElementById('peopleCount').value);
+    if (count < 2) {
+      alert("⚠️ A minimum of 2 users is required to book a Discussion Room!");
+      return;
+    }
+
+    const room = document.getElementById('room').value;
+    const isRoomBusy = records.some(r => r.room === room && r.status === 'In Use');
+    if (isRoomBusy) {
+      alert(`⚠️ ${room} is currently in use. Please check-out first or select another room.`);
+      return;
+    }
+
+    const submitBtn = document.getElementById('checkin-btn');
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Submitting to Google Sheets...";
+
+    const fullClass = `${document.getElementById('classForm').value}${document.getElementById('classHouse').value}`;
+    const studentInfo = `${fullClass} (${document.getElementById('studentNo').value}) ${document.getElementById('studentName').value}`;
+
+    const payload = {
+      action: "checkin",
+      id: Date.now(),
+      room: room,
+      session: document.getElementById('session').value,
+      date: document.getElementById('date').value,
+      startTime: document.getElementById('startTime').value,
+      student: studentInfo,
+      peopleCount: count,
+      teacher: document.getElementById('hasTeacher').value === 'Yes' ? document.getElementById('teacherName').value.toUpperCase() : 'N/A'
+    };
+
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    .then(() => {
+      alert('✅ Check-In successful! Saved to Google Sheets.');
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Submit & Start Usage";
+      document.getElementById('checkin-form').reset();
+      
+      // Reset defaults
+      document.getElementById('date').value = new Date().toISOString().split('T')[0];
+      document.getElementById('startTime').value = new Date().toTimeString().substring(0,5);
+      toggleTeacherInput();
+      
+      // Reload table
+      setTimeout(fetchRecords, 1000);
+    })
+    .catch(err => {
+      alert('❌ Error saving data. Please try again.');
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Submit & Start Usage";
+    });
+  });
+
+  // Update Check-Out Dropdown Menu
+  function updateCheckoutDropdown() {
+    const select = document.getElementById('checkoutRoom');
+    select.innerHTML = '<option value="">-- Select Active Room --</option>';
+    
+    const activeRecords = records.filter(r => r.status === 'In Use');
+    
+    if(activeRecords.length === 0) {
+      select.innerHTML = '<option value="">No rooms are currently in use</option>';
+      return;
+    }
+
+    activeRecords.forEach(r => {
+      const option = document.createElement('option');
+      option.value = r.id;
+      option.textContent = `${r.room} - ${r.student}`;
+      select.appendChild(option);
+    });
+  }
+
+  // Submit Check-Out
+  function submitCheckout() {
+    const recordId = document.getElementById('checkoutRoom').value;
+    const endTime = document.getElementById('endTime').value || new Date().toTimeString().substring(0,5);
+
+    if(!recordId) {
+      alert('Please select a room to check-out!');
+      return;
+    }
+
+    const btn = document.getElementById('checkout-btn');
+    btn.disabled = true;
+    btn.innerText = "Processing Check-Out...";
+
+    const payload = {
+      action: "checkout",
+      id: recordId,
+      endTime: endTime
+    };
+
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    .then(() => {
+      alert(`✅ Check-out completed successfully!`);
+      btn.disabled = false;
+      btn.innerText = "Confirm Check-Out";
+      setTimeout(fetchRecords, 1000);
+    })
+    .catch(err => {
+      alert('❌ Error during check-out.');
+      btn.disabled = false;
+      btn.innerText = "Confirm Check-Out";
+    });
+  }
+
+  // Quick Check-Out Action in Table
+  function quickCheckout(id) {
+    const endTime = new Date().toTimeString().substring(0,5);
+    const payload = {
+      action: "checkout",
+      id: id,
+      endTime: endTime
+    };
+
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    })
+    .then(() => {
+      alert(`✅ Check-out completed successfully!`);
+      setTimeout(fetchRecords, 1000);
+    });
+  }
+
+  // Render Table
+  function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+
+    if (records.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:#999;">No records found today</td></tr>';
+      return;
+    }
+
+    records.forEach(r => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><b>${r.room}</b></td>
+        <td>${r.session}</td>
+        <td>${r.student}</td>
+        <td>${r.peopleCount}</td>
+        <td>${r.teacher}</td>
+        <td>${r.startTime}</td>
+        <td>${r.endTime}</td>
+        <td class="${r.status === 'In Use' ? 'status-using' : 'status-finished'}">${r.status}</td>
+        <td>
+          ${r.status === 'In Use' ? `<button class="action-btn" onclick="quickCheckout('${r.id}')">Check-Out</button>` : '—'}
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+</script>
+
+</body>
+</html>
